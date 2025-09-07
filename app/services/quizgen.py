@@ -1,7 +1,9 @@
 import wikipediaapi
 import random
+from app.config import settings
 
-wiki = wikipediaapi.Wikipedia('ru')
+UA = f"StudyHelperBot/1.0 (+{settings.BASE_WEBHOOK_URL or 'https://render.com'}; admin_id={settings.ADMIN_ID})"
+wiki = wikipediaapi.Wikipedia(language='ru', user_agent=UA)
 
 STOPWORDS = set("в во на и или но что как это эта этот которые которые из от для по над под при без со из-за из-под через между также тоже т.д. т.п.".split())
 
