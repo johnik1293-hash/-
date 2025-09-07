@@ -1,6 +1,8 @@
 import wikipediaapi
+from app.config import settings
 
-wiki = wikipediaapi.Wikipedia('ru')
+UA = f"StudyHelperBot/1.0 (+{settings.BASE_WEBHOOK_URL or 'https://render.com'}; admin_id={settings.ADMIN_ID})"
+wiki = wikipediaapi.Wikipedia(language='ru', user_agent=UA)
 
 def explain(topic: str):
     page = wiki.page(topic)
