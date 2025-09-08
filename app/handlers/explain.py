@@ -11,7 +11,7 @@ router = Router()
 async def on_explain(m: types.Message):
     parts = m.text.split(maxsplit=1)
     if len(parts) < 2:
-        await m.answer("Формат: /explain <тема>")
+         await m.answer("Формат: /explain <тема>", parse_mode=None)
         return
     topic = parts[1]
 
