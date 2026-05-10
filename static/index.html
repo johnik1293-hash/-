@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HoMM 3 Mini App Prototype</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 95vw;
+            height: 70vh;
+            background-color: #2c3e50;
+            border: 3px solid #7f8c8d;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 1px;
+            background-image: linear-gradient(#34495e 1px, transparent 1px),
+                              linear-gradient(90deg, #34495e 1px, transparent 1px);
+            background-size: 12.5% 10%;
+        }
+        .cell {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .cell:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        #hero {
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        #info-panel {
+            width: 90vw;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .castle { font-size: 2rem; }
+        .resource { font-size: 1.5rem; }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h3>HoMM 3 Prototype</h3>
+    <div id="game-container">
+        <!-- Hero will be placed here -->
+    </div>
+    <div id="info-panel">
+        <div id="status">Нажмите на клетку, чтобы переместить героя</div>
+        <div id="resources">Золото: <span id="gold">500</span></div>
+        <button onclick="tgClose()">Закрыть игру</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const container = document.getElementById('game-container');
+        const statusText = document.getElementById('status');
+        const goldText = document.getElementById('gold');
+        let gold = 500;
+
+        let heroPos = { x: 0, y: 0 };
+        const hero = document.createElement('div');
+        hero.id = 'hero';
+        hero.innerHTML = '🏇';
+
+        // Items on map
+        const mapItems = {
+            '2,2': { type: 'castle', icon: '🏰', name: 'Замок' },
+            '5,4': { type: 'resource', icon: '💎', name: 'Кристаллы', value: 100 },
+            '3,7': { type: 'resource', icon: '💰', name: 'Сундук', value: 200 }
+        };
+
+        function initMap() {
+            for (let y = 0; y < 10; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+
+                    const item = mapItems[`${x},${y}`];
+                    if (item) {
+                        cell.innerHTML = item.icon;
+                        cell.className += ' ' + item.type;
+                    }
+
+                    cell.onclick = () => moveHero(x, y);
+                    container.appendChild(cell);
+                }
+            }
+            updateHeroPos();
+        }
+
+        function updateHeroPos() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                if (cell.dataset.x == heroPos.x && cell.dataset.y == heroPos.y) {
+                    cell.appendChild(hero);
+                }
+            });
+        }
+
+        function moveHero(x, y) {
+            heroPos = { x, y };
+            updateHeroPos();
+
+            const item = mapItems[`${x},${y}`];
+            if (item) {
+                if (item.type === 'resource') {
+                    gold += item.value;
+                    goldText.innerText = gold;
+                    statusText.innerText = `Вы собрали ${item.name}! +${item.value} золота`;
+                    // Remove item
+                    const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+                    cell.innerHTML = '';
+                    delete mapItems[`${x},${y}`];
+                    cell.appendChild(hero);
+                    tg.HapticFeedback.notificationOccurred('success');
+                } else if (item.type === 'castle') {
+                    statusText.innerText = `Вы вошли в ${item.name}`;
+                    tg.HapticFeedback.impactOccurred('medium');
+                }
+            } else {
+                statusText.innerText = `Герой переместился в (${x}, ${y})`;
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function tgClose() {
+            tg.close();
+        }
+
+        initMap();
+    </script>
+</body>
+</html>

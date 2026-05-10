@@ -1,5 +1,7 @@
 from aiogram import Router, types, F
 from aiogram.filters import Command
+from app.config import settings
+from app.keyboards import get_game_kb
 
 router = Router()
 
@@ -28,4 +30,8 @@ TMA_INFO = (
 @router.message(Command("tma"))
 @router.message(F.text == "🎮 О Mini Apps")
 async def on_tma_info(m: types.Message):
-    await m.answer(TMA_INFO)
+    url = settings.BASE_WEBHOOK_URL or "https://your-bot-url.com"
+    await m.answer(
+        TMA_INFO + "\n\nЯ подготовил для тебя <b>прототип-демонстрацию</b> того, как может выглядеть такая игра:",
+        reply_markup=get_game_kb(url)
+    )

@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 main_kb = ReplyKeyboardMarkup(
     keyboard=[
@@ -8,3 +8,10 @@ main_kb = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+def get_game_kb(url: str):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🎮 Запустить прототип HoMM3", web_app=WebAppInfo(url=f"{url}/static/index.html"))]
+        ]
+    )
