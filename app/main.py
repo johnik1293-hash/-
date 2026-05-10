@@ -1,15 +1,17 @@
 # app/main.py
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from aiogram.types import Update
 from app.bot import dp, bot
-from app.handlers import start as h_start, solve as h_solve, quiz as h_quiz, explain as h_explain, misc as h_misc
+from app.handlers import start as h_start, solve as h_solve, quiz as h_quiz, explain as h_explain, misc as h_misc, tma as h_tma
 from app.config import settings
 from app.db import init_db
 from fastapi.responses import PlainTextResponse
 
-for r in (h_start.router, h_solve.router, h_quiz.router, h_explain.router, h_misc.router):
+for r in (h_start.router, h_solve.router, h_quiz.router, h_explain.router, h_misc.router, h_tma.router):
     dp.include_router(r)
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def on_startup():

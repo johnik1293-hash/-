@@ -6,3 +6,4 @@ wikipedia-api==0.6.0
 aiosqlite==0.20.0
 python-dotenv==1.0.1
 pydantic==2.7.1
+aiofiles~=23.2.1
